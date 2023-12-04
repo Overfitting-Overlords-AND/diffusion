@@ -1,32 +1,64 @@
-# Conditional Diffusion MNIST
+This code is based on this repo with the purpose of completing the Week 7 challange on Founders and Coders MLX3.
 
-[script.py](script.py) is a minimal, self-contained implementation of a conditional diffusion model. It learns to generate MNIST digits, conditioned on a class label. The neural network architecture is a small U-Net (pretrained weights also available in this repo). This code is modified from [this excellent repo](https://github.com/cloneofsimo/minDiffusion) which does unconditional generation. The diffusion model is a [Denoising Diffusion Probabilistic Model (DDPM)](https://arxiv.org/abs/2006.11239).
-<p align = "center">
-<img width="400" src="gif_mnist_01.gif"/img>
-</p>
-<p align = "center">
-Samples generated from the model.
-</p>
+Week 7 challenge details
+========================
 
-The conditioning roughly follows the method described in [Classifier-Free Diffusion Guidance](https://arxiv.org/abs/2207.12598) (also used in [ImageGen](https://arxiv.org/abs/2205.11487)). The model infuses timestep embeddings $t_e$ and context embeddings $c_e$ with the U-Net activations at a certain layer $a_L$, via,
-<p align = "center">
-$a_{L+1} = c_e  a_L + t_e.$
-</p>
-(Though in our experimentation, we found variants of this also work, e.g. concatenating embeddings together.)
+Diffusion Models
+This week, we shift our focus to another exciting area in deep learning: Diffusion Models. These models, particularly in the context of image processing and generation, have shown remarkable capabilities. Your main task will involve understanding and implementing diffusion models, with a specific focus on the Conditional Diffusion Model for MNIST digits.
 
-At training time, $c_e$ is randomly set to zero with probability $0.1$, so the model learns to do unconditional generation (say $\psi(z_t)$ for noise $z_t$ at timestep $t$) and also conditional generation (say $\psi(z_t, c)$ for context $c$). This is important as at generation time, we choose a weight, $w \geq 0$, to guide the model to generate examples with the following equation,
-<p align = "center">
-$\hat{\epsilon}_{t} = (1+w)\psi(z_t, c) - w \psi(z_t).$
-</p>
+Goal of the week
+Your primary objective for this week is to develop and train a Conditional Diffusion Model. This model should be capable of generating high-quality images of handwritten digits, similar to those found in the MNIST dataset.
 
-Increasing $w$ produces images that are more typical but less diverse.
+To guide you through this task, here is an overview of what you should aim to achieve:
 
-<p align = "center">
-<img width="800" src="guided_mnist.png"/img>
-</p>
-<p align = "center">
-Samples produced with varying guidance strength, $w$.
-</p>
+1. Familiarize Yourself with the Basic Concepts
+Start by understanding the theory behind diffusion models, particularly focusing on the papers and resources provided
+Explore the U-Net architecture, which is pivotal in many diffusion model implementations
+2. Implement a Basic Diffusion Model
+Using the provided code and references, implement a basic version of a diffusion model
+Train this model using the MNIST dataset to understand the nuances of training such models
+3. Develop a Conditional Diffusion Model
+Enhance your basic model to make it conditional, allowing it to generate specific digits from the MNIST dataset
+This involves modifying the model to take a digit class as input and generate an image of that digit
+4. Experiment and Iterate
+Experiment with different parameters and architectures to improve the quality of the generated images
+Document your findings and the impact of various changes on the model's performance
+5. Theera Deployment
+Deploy your model in a way that it can receive a digit class (0-9) as input and return a generated image of that digit
+Learning outcomes
+By the end of the week, you should have a solid understanding of:
 
-Training for above models took around 20 epochs (~20 minutes).
+Theoretical Foundations of Diffusion Models
+U-Net Architecture and its Role in Image Synthesis
+Training and Tuning of Diffusion Models
+Conditional Generation using Diffusion Models
+Code
+In this phase, we encourage you to use existing implementations to gain practical insights. This repository provides a direct example of a Conditional Diffusion Model applied to the MNIST dataset.
 
+https://github.com/TeaPearce/Conditional_Diffusion_MNIST
+
+Study the Code
+Examine the code in the provided repository. Understand how the different components of the model are implemented and how they interact with each other.
+
+Link Theory with Practice
+As you explore the code, continually refer back to the theoretical concepts in the papers about diffusion models and the U-Net architecture. This practice will help you understand why certain approaches are taken in the code and how they relate to the underlying principles of diffusion models.
+
+Don't Just Copy-Paste
+Avoid simple copy and paste. The goal is to understand the mechanisms behind the model.
+
+Experiment and Modify
+Once you have a grasp of both the theoretical and practical aspects, experiment with the code. Try modifying different aspects and observe how these changes impact the model's performance. Or experiment with CIFAR-10 dataset or Tiny ImageNet.
+
+References
+U-Net: Convolutional Networks for Biomedical Image Segmentation
+
+Paper: https://arxiv.org/pdf/1505.04597.pdf
+Deep Unsupervised Learning using Nonequilibrium Thermodynamics
+
+Paper: https://arxiv.org/pdf/1503.03585.pdf
+Denoising Diffusion Probabilistic Models
+
+Paper: https://arxiv.org/pdf/2006.11239.pdf
+High-Resolution Image Synthesis with Latent Diffusion Models
+
+Paper: https://arxiv.org/abs/2112.10752
