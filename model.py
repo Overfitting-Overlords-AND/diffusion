@@ -1,15 +1,17 @@
-from typing import Dict, Tuple
-from tqdm import tqdm
+# from typing import Dict, Tuple
+# from tqdm import tqdm
+# import torch.nn.functional as F
+# from torch.utils.data import DataLoader
+# from torchvision import models, transforms
+# from torchvision.datasets import MNIST
+# from torchvision.utils import save_image, make_grid
+# import matplotlib.pyplot as plt
+# from matplotlib.animation import FuncAnimation, PillowWriter
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from torchvision import models, transforms
-from torchvision.datasets import MNIST
-from torchvision.utils import save_image, make_grid
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
 import numpy as np
+
+single = 1
 
 class ResidualConvBlock(nn.Module):
     def __init__(
@@ -281,3 +283,51 @@ class DDPM(nn.Module):
         
         x_i_store = np.array(x_i_store)
         return x_i, x_i_store
+
+    def single_sample(self, c, size, device, guide_w = 0.0):
+        # we follow the guidance sampling scheme described in 'Classifier-Free Diffusion Guidance'
+        # to make the fwd passes efficient, we concat two versions of the dataset,
+        # one with context_mask=0 and the other context_mask=1
+        # we then mix the outputs with the guidance scale, w
+        # where w>0 means more guidance
+
+        x_i = torch.randn(single, *size).to(device)  # x_T ~ N(0, 1), sample initial noise
+        c = c.repeat(int(single/c.shape[0]))
+
+        # don't drop context at test time
+        context_mask = torch.zeros_like(c).to(device)
+
+        # double the batch
+        c = c.repeat(2)
+        context_mask = context_mask.repeat(2)
+        context_mask[single:] = 1. # makes second half of batch context free
+
+        x_i_store = [] # keep track of generated steps in case want to plot something 
+        print()
+        for i in range(self.n_T, 0, -1):
+            print(f'sampling timestep {i}',end='\r')
+            t_is = torch.tensor([i / self.n_T]).to(device)
+            t_is = t_is.repeat(single,1,1,1)
+
+            # double batch
+            x_i = x_i.repeat(2,1,1,1)
+            t_is = t_is.repeat(2,1,1,1)
+
+            z = torch.randn(single, *size).to(device) if i > 1 else 0
+
+            # split predictions and compute weighting
+            eps = self.nn_model(x_i, c, t_is, context_mask)
+            eps1 = eps[:single]
+            eps2 = eps[single:]
+            eps = (1+guide_w)*eps1 - guide_w*eps2
+            x_i = x_i[:single]
+            x_i = (
+                self.oneover_sqrta[i] * (x_i - eps * self.mab_over_sqrtmab[i])
+                + self.sqrt_beta_t[i] * z
+            )
+            if i%20==0 or i==self.n_T or i<8:
+                x_i_store.append(x_i.detach().cpu().numpy())
+        
+        x_i_store = np.array(x_i_store)
+        return x_i, x_i_store
+    
