@@ -13,7 +13,8 @@ def eval_mnist():
     n_T = 400 # 500
     device = getDevice()
     n_classes = 10
-    batch_size = 128
+    batch_size = 16
+
 
     n_feat = 128 # 128 ok, 256 better (but slower)
     save_dir = './data/diffusion_outputs10/'
@@ -49,6 +50,7 @@ def eval_mnist():
                 grid = make_grid(x_all*-1 + 1, nrow=10)
                 save_image(grid, save_dir + f"image_w{w}.png")
                 print('saved image at ' + save_dir + f"image_w{w}.png")
+                break
 
                 # if ep%5==0 or ep == int(n_epoch-1):
                 #     # create gif of images evolving over time, based on x_gen_store

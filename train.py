@@ -8,6 +8,7 @@ from torchvision import models, transforms
 from torchvision.datasets import MNIST
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
+from utilities import getDevice 
 
 def train_mnist():
 
@@ -15,7 +16,7 @@ def train_mnist():
     n_epoch = 20
     batch_size = 256
     n_T = 400 # 500
-    device = "cpu"
+    device = getDevice()
     n_classes = 10
     n_feat = 128 # 128 ok, 256 better (but slower)
     lrate = 1e-4
