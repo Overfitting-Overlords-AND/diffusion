@@ -284,7 +284,7 @@ class DDPM(nn.Module):
         x_i_store = np.array(x_i_store)
         return x_i, x_i_store
 
-    def single_sample(self, c, size, device, guide_w = 0.0):
+    def single_sample(self, digit, size, device, guide_w = 0.0):
         # we follow the guidance sampling scheme described in 'Classifier-Free Diffusion Guidance'
         # to make the fwd passes efficient, we concat two versions of the dataset,
         # one with context_mask=0 and the other context_mask=1
@@ -292,15 +292,16 @@ class DDPM(nn.Module):
         # where w>0 means more guidance
 
         x_i = torch.randn(single, *size).to(device)  # x_T ~ N(0, 1), sample initial noise
-        c = c.repeat(int(single/c.shape[0]))
+        c_i = torch.tensor([digit])
+        c_i = c_i.repeat(int(single/c_i.shape[0]))
 
         # don't drop context at test time
-        context_mask = torch.zeros_like(c).to(device)
+        context_mask = torch.zeros_like(c_i).to(device)
 
         # double the batch
-        c = c.repeat(2)
+        c_i = c_i.repeat(2)
         context_mask = context_mask.repeat(2)
-        context_mask[single:] = 1. # makes second half of batch context free
+        context_mask[single] = 1. # makes second half of batch context free
 
         x_i_store = [] # keep track of generated steps in case want to plot something 
         print()
@@ -316,7 +317,7 @@ class DDPM(nn.Module):
             z = torch.randn(single, *size).to(device) if i > 1 else 0
 
             # split predictions and compute weighting
-            eps = self.nn_model(x_i, c, t_is, context_mask)
+            eps = self.nn_model(x_i, c_i, t_is, context_mask)
             eps1 = eps[:single]
             eps2 = eps[single:]
             eps = (1+guide_w)*eps1 - guide_w*eps2

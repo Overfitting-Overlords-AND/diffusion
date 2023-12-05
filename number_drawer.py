@@ -1,6 +1,7 @@
 import torch
 from utilities import getDevice 
 from model import DDPM, ContextUnet
+import torchvision
 
 def draw_number(text):
     # hardcoding these here
@@ -25,9 +26,11 @@ def draw_number(text):
     with torch.no_grad():
         x_gen, _ = ddpm.single_sample(text, (1, 28, 28), device, guide_w=w)
 
-    return x_gen
+    img = torchvision.transforms.functional.to_pil_image(x_gen.squeeze())
+    return img
 
 
 if __name__ == "__main__":
-    draw_number("8")
+    draw_number(8).show()
+
 
