@@ -32,8 +32,8 @@ def eval_mnist():
         # followed by real images (bottom rows)
         with torch.no_grad():
             n_sample = 4*n_classes
-            for w_i, w in enumerate(ws_test):
-                x_gen, x_gen_store = ddpm.sample(n_sample, (1, 28, 28), device, guide_w=w)
+            for _, w in enumerate(ws_test):
+                x_gen, _ = ddpm.sample(n_sample, (1, 28, 28), device, guide_w=w)
 
                 # append some real images at bottom, order by class also
                 x_real = torch.Tensor(x_gen.shape).to(device)

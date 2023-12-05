@@ -9,3 +9,4 @@ data/MNIST/raw/train-labels-idx1-ubyte
 data/MNIST/raw/train-images-idx3-ubyte.gz
 data/MNIST/raw/train-images-idx3-ubyte
 data/MNIST/raw/t10k-labels-idx1-ubyte.gz
+data/diffusion_outputs10/image_w0.0 copy.png
