@@ -9,45 +9,36 @@ from torchvision import models, transforms
 from torchvision.datasets import MNIST
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
-from utilities import getDevice 
+from utilities import getDevice, save_checkpoint, load_latest_checkpoint, find_latest_epoch_file
 import wandbWrapper as wandb
 import constants
 
 def train_mnist():
 
     # hardcoding these here
-    n_epoch = constants.NUM_OF_EPOCHS
-    batch_size = constants.BATCH_SIZE
-    n_T = constants.NUM_TIMESTEPS
     device = getDevice()
     n_classes = constants.NUM_CLASSES
     n_feat = constants.NUM_DIMENSIONS
     lrate = constants.LEARNING_RATE
-    save_dir = './data/diffusion_outputs_CIFAR10/'
 
     wandb.init()
     
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=3, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=constants.DROP_PROB)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=3, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
 
-    # optionally load a model
-    #ddpm.load_state_dict(torch.load("./pretrained_model/model_39.pth", map_location=torch.device('cpu')))
-
     tf = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
-    #tf = transforms.Compose([transforms.ToTensor()]) # mnist is already normalised 0 to 1
 
     # Load the training data
     dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=tf)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size,
+    dataloader = torch.utils.data.DataLoader(dataset, constants.BATCH_SIZE,
                                             shuffle=True, num_workers=2)
 
+    start_epoch = load_latest_checkpoint(ddpm)
 
-    # dataset = MNIST("./data", train=True, download=True, transform=tf)
-    # dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=5)
     optim = torch.optim.Adam(ddpm.parameters(), lr=lrate)
 
-    for ep in range(n_epoch):
+    for ep in range(start_epoch,constants.NUM_OF_EPOCHS):
         print(f'epoch {ep}')
         ddpm.train()
 
@@ -71,8 +62,9 @@ def train_mnist():
             optim.step()
         
         # optionally save model
-        torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
-        print('saved model at ' + save_dir + f"model_{ep}.pth")
+        save_checkpoint(ddpm.state_dict(), f"{constants.SAVE_DIR}model_{ep}.pth")
+        #torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
+        print(f"saved model at {constants.SAVE_DIR}model_{ep}.pth")
 
     wandb.finish()
 

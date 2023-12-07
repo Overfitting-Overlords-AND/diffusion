@@ -7,6 +7,7 @@ import os
 import re
 import os
 import re
+import constants
 
 def getDevice():
   return "cuda" if torch.cuda.is_available() else "cpu"
@@ -20,7 +21,7 @@ def save_checkpoint(state, filename):
         os.makedirs(directory)
     torch.save(state, filename)
 
-def find_latest_epoch_file(path='./output'):
+def find_latest_epoch_file(path='./data/diffusion_outputs_CIFAR10'):
     epoch_files = None
     if os.path.exists(path):
         epoch_files = [f for f in os.listdir(path) if re.match(r'epoch_\d+\.pt', f)]
@@ -32,7 +33,7 @@ def find_latest_epoch_file(path='./output'):
         return 0, None
 
 # Function to load the latest epoch file if it exists
-def load_latest_checkpoint(model, path='./output'):
+def load_latest_checkpoint(model, path=constants.SAVE_DIR):
     latest_epoch, latest_file = find_latest_epoch_file(path)
     if latest_file:
         print(f"Resuming training from epoch {latest_epoch+1}")

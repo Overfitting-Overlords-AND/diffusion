@@ -9,3 +9,5 @@ NUM_CLASSES = 10
 NUM_TIMESTEPS = 400
 NUM_DIMENSIONS = 128
 DROP_PROB = 0.1
+
+SAVE_DIR = './data/diffusion_outputs_CIFAR10/'
