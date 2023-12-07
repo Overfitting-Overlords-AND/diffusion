@@ -31,11 +31,10 @@ def draw_number(text):
     save_image(grid, save_dir + f"image_w{w}.png")
     print('saved image at ' + save_dir + f"image_w{w}.png")
     # img = torchvision.transforms.functional.to_pil_image(x_gen.squeeze())
-    # return img
+    return grid
 
 
 if __name__ == "__main__":
-    # draw_number(8).show()
-    draw_number(8)
+    draw_number(8).show()
 
 
