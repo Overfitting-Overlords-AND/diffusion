@@ -3,6 +3,9 @@ from utilities import getDevice
 from model import DDPM, ContextUnet
 import torchvision
 from torchvision.utils import save_image, make_grid
+import constants
+from PIL import Image
+import matplotlib.pyplot as plt
 
 def draw_number(text):
     # hardcoding these here
@@ -20,12 +23,10 @@ def draw_number(text):
     ddpm.to(device)
     ddpm.load_state_dict(torch.load("./pretrained_model/model_39.pth", map_location=torch.device('cpu')))
 
-    # dataset = MNIST("./data", train=True, download=True, transform=transforms.Compose([transforms.ToTensor()]))
-    # dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=5)
     ddpm.eval()
 
     with torch.no_grad():
-        x_gen, _ = ddpm.single_sample(text, (1, 28, 28), device, guide_w=w)
+        x_gen, _ = ddpm.single_sample(text, (1, 28, 28), device, guide_w=constants.WEIGHT)
 
     grid = make_grid(x_gen*-1 + 1, nrow=10)
     save_image(grid, save_dir + f"image_w{w}.png")
@@ -35,6 +36,5 @@ def draw_number(text):
 
 
 if __name__ == "__main__":
-    draw_number(8).show()
-
+    draw_number(8)
 

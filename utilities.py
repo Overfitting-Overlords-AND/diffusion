@@ -24,11 +24,11 @@ def save_checkpoint(state, filename):
 def find_latest_epoch_file(path='./data/diffusion_outputs_CIFAR10'):
     epoch_files = None
     if os.path.exists(path):
-        epoch_files = [f for f in os.listdir(path) if re.match(r'epoch_\d+\.pt', f)]
+        epoch_files = [f for f in os.listdir(path) if re.match(r'model_\d+\.pth', f)]
     if epoch_files:
         # Extracting epoch numbers from the files and finding the max
         latest_epoch = max([int(f.split('_')[1].split('.')[0]) for f in epoch_files])
-        return latest_epoch, f"{path}/epoch_{latest_epoch}.pt"
+        return latest_epoch, f"{path}/model_{latest_epoch}.pth"
     else:
         return 0, None
 

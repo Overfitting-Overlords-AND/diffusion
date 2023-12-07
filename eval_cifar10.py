@@ -1,29 +1,31 @@
 import torch
 from torch.utils.data import DataLoader
-from torchvision import transforms
+from torchvision import transforms, datasets
 from torchvision.datasets import MNIST
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
-from utilities import getDevice 
+from utilities import getDevice, load_latest_checkpoint
 import constants
 
-def eval_mnist():
+def eval_cifar10():
     # hardcoding these here
-    n_T = 400 # 500
+    n_T = constants.NUM_TIMESTEPS # 500
     device = getDevice()
-    n_classes = 10
-    batch_size = 128
+    n_classes = constants.NUM_CLASSES
+    batch_size = constants.BATCH_SIZE
 
-    n_feat = 128 # 128 ok, 256 better (but slower)
-    save_dir = './data/diffusion_outputs10/'
+    n_feat = constants.NUM_DIMENSIONS
     ws_test = [0.0, 0.5, 2.0] # strength of generative guidance
 
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=n_feat, n_classes=n_classes), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=0.1)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=3, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=0.1)
     ddpm.to(device)
-    ddpm.load_state_dict(torch.load("./pretrained_model/model_39.pth", map_location=torch.device('cpu')))
+    load_latest_checkpoint(ddpm)
 
-    dataset = MNIST("./data", train=True, download=True, transform=transforms.Compose([transforms.ToTensor()]))
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=constants.NUM_WORKERS)
+    transforms.Compose([transforms.ToTensor()])
+
+    # Load the training data
+    dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.Compose([transforms.ToTensor()]))
+    dataloader = torch.utils.data.DataLoader(dataset, constants.BATCH_SIZE, shuffle=True, num_workers=constants.NUM_WORKERS)
     ddpm.eval()
 
     for x, c in dataloader:
@@ -32,7 +34,7 @@ def eval_mnist():
         with torch.no_grad():
             n_sample = 4*n_classes
             for _, w in enumerate(ws_test):
-                x_gen, _ = ddpm.sample(n_sample, (1, 28, 28), device, guide_w=w)
+                x_gen, _ = ddpm.sample(n_sample, (3, 32, 32), device, guide_w=w)
 
                 # append some real images at bottom, order by class also
                 x_real = torch.Tensor(x_gen.shape).to(device)
@@ -46,8 +48,8 @@ def eval_mnist():
 
                 x_all = torch.cat([x_gen, x_real])
                 grid = make_grid(x_all*-1 + 1, nrow=10)
-                save_image(grid, save_dir + f"image_w{w}.png")
-                print('saved image at ' + save_dir + f"image_w{w}.png")
+                save_image(grid, constants.SAVE_DIR + f"image_w{w}.png")
+                print('saved image at ' + constants.SAVE_DIR + f"image_w{w}.png")
 
                 # if ep%5==0 or ep == int(n_epoch-1):
                 #     # create gif of images evolving over time, based on x_gen_store
@@ -68,5 +70,5 @@ def eval_mnist():
                 #     print('saved image at ' + save_dir + f"gif_ep{ep}_w{w}.gif")
 
 if __name__ == "__main__":
-    eval_mnist()
+    eval_cifar10()
 

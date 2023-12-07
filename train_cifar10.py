@@ -58,9 +58,9 @@ def train_mnist():
             else:
                 loss_ema = 0.95 * loss_ema + 0.05 * loss.item()
             pbar.set_description(f"loss: {loss_ema:.4f}")
-            wandb.log({"loss_ema": loss_ema})
             optim.step()
         
+        wandb.log({"loss_ema": loss_ema})
         # optionally save model
         save_checkpoint(ddpm.state_dict(), f"{constants.SAVE_DIR}model_{ep}.pth")
         #torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
