@@ -102,19 +102,21 @@ class EmbedFC(nn.Module):
 
 
 class ContextUnet(nn.Module):
-    def __init__(self, in_channels, n_feat = 256, n_classes=10):
+    def __init__(self, in_channels, n_feat = 256, n_classes=10, image_size=28):
         super(ContextUnet, self).__init__()
 
         self.in_channels = in_channels
         self.n_feat = n_feat
         self.n_classes = n_classes
 
+        flattened_image_size = int(image_size/4)
+
         self.init_conv = ResidualConvBlock(in_channels, n_feat, is_res=True)
 
         self.down1 = UnetDown(n_feat, n_feat)
         self.down2 = UnetDown(n_feat, 2 * n_feat)
 
-        self.to_vec = nn.Sequential(nn.AvgPool2d(7), nn.GELU())
+        self.to_vec = nn.Sequential(nn.AvgPool2d(flattened_image_size), nn.GELU())
 
         self.timeembed1 = EmbedFC(1, 2*n_feat)
         self.timeembed2 = EmbedFC(1, 1*n_feat)
@@ -122,8 +124,7 @@ class ContextUnet(nn.Module):
         self.contextembed2 = EmbedFC(n_classes, 1*n_feat)
 
         self.up0 = nn.Sequential(
-            # nn.ConvTranspose2d(6 * n_feat, 2 * n_feat, 7, 7), # when concat temb and cemb end up w 6*n_feat
-            nn.ConvTranspose2d(2 * n_feat, 2 * n_feat, 7, 7), # otherwise just have 2*n_feat
+            nn.ConvTranspose2d(2 * n_feat, 2 * n_feat, flattened_image_size, flattened_image_size), # otherwise just have 2*n_feat
             nn.GroupNorm(8, 2 * n_feat),
             nn.ReLU(),
         )
