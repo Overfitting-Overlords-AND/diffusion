@@ -19,7 +19,7 @@ async def mnist_generator(request: fastapi.Request):
   if MODE == Mode.MNIST:
     img = draw_number(int(text))
   else:
-    img = draw_image(int(text))
+    img = draw_image(text)
   buffer = io.BytesIO()
   save_image(img, buffer, format='PNG')
   #img.save(buffer, format="PNG")
