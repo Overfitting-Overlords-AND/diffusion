@@ -10,20 +10,22 @@ from torchvision.datasets import MNIST
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
 from utilities import getDevice 
-import os
+import wandbWrapper as wandb
+import constants
 
 def train_mnist():
 
     # hardcoding these here
-    n_epoch = 20
-    batch_size = 128
-    n_T = 400 # 500
+    n_epoch = constants.NUM_OF_EPOCHS
+    batch_size = constants.BATCH_SIZE
+    n_T = constants.NUM_TIMESTEPS
     device = getDevice()
-    n_classes = 10
-    n_feat = 128 # 128 ok, 256 better (but slower)
-    lrate = 1e-4
-    save_model = False
+    n_classes = constants.NUM_CLASSES
+    n_feat = constants.NUM_DIMENSIONS
+    lrate = constants.LEARNING_RATE
     save_dir = './data/diffusion_outputs_CIFAR10/'
+
+    wandb.init()
     
     ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=0.1)
     ddpm.to(device)
@@ -35,7 +37,6 @@ def train_mnist():
     #tf = transforms.Compose([transforms.ToTensor()]) # mnist is already normalised 0 to 1
 
     # Load the training data
-    os.environ['SSL_CERT_FILE'] = ''
     dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=tf)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size,
@@ -66,12 +67,15 @@ def train_mnist():
             else:
                 loss_ema = 0.95 * loss_ema + 0.05 * loss.item()
             pbar.set_description(f"loss: {loss_ema:.4f}")
+            wandb.log({"loss_ema": loss_ema})
             optim.step()
         
         # optionally save model
-        if save_model and ep == int(n_epoch-1):
-            torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
-            print('saved model at ' + save_dir + f"model_{ep}.pth")
+        torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
+        print('saved model at ' + save_dir + f"model_{ep}.pth")
+
+    wandb.finish()
+
 
 if __name__ == "__main__":
     train_mnist()
