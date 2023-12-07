@@ -27,7 +27,7 @@ def train_mnist():
 
     wandb.init()
     
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=0.1)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=3, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
 
     # optionally load a model
