@@ -43,7 +43,7 @@ def train_mnist():
         ddpm.train()
 
         # linear lrate decay
-        optim.param_groups[0]['lr'] = lrate*(1-ep/n_epoch)
+        optim.param_groups[0]['lr'] = lrate*(1-ep/constants.NUM_OF_EPOCHS)
 
         pbar = tqdm(dataloader)
         loss_ema = None
