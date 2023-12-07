@@ -2,6 +2,7 @@ import torch
 from utilities import getDevice 
 from model import DDPM, ContextUnet
 import torchvision
+from torchvision.utils import save_image, make_grid
 
 def draw_number(text):
     # hardcoding these here
@@ -11,7 +12,7 @@ def draw_number(text):
 
 
     n_feat = 128 # 128 ok, 256 better (but slower)
-    # save_dir = './data/diffusion_outputs10/'
+    save_dir = './data/diffusion_outputs10/'
     # ws_test = [0.0, 0.5, 2.0] # strength of generative guidance
     w = 2.0
 
@@ -26,11 +27,15 @@ def draw_number(text):
     with torch.no_grad():
         x_gen, _ = ddpm.single_sample(text, (1, 28, 28), device, guide_w=w)
 
-    img = torchvision.transforms.functional.to_pil_image(x_gen.squeeze())
-    return img
+    grid = make_grid(x_gen*-1 + 1, nrow=10)
+    save_image(grid, save_dir + f"image_w{w}.png")
+    print('saved image at ' + save_dir + f"image_w{w}.png")
+    # img = torchvision.transforms.functional.to_pil_image(x_gen.squeeze())
+    # return img
 
 
 if __name__ == "__main__":
-    draw_number(8).show()
+    # draw_number(8).show()
+    draw_number(8)
 
 

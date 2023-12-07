@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-single = 1
+single = 40
 
 class ResidualConvBlock(nn.Module):
     def __init__(
@@ -301,7 +301,7 @@ class DDPM(nn.Module):
         # double the batch
         c_i = c_i.repeat(2)
         context_mask = context_mask.repeat(2)
-        context_mask[single] = 1. # makes second half of batch context free
+        context_mask[single:] = 1. # makes second half of batch context free
 
         x_i_store = [] # keep track of generated steps in case want to plot something 
         print()
