@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-single = 1
+num_of_output_mages = 1
 
 class ResidualConvBlock(nn.Module):
     def __init__(
@@ -291,9 +291,9 @@ class DDPM(nn.Module):
         # we then mix the outputs with the guidance scale, w
         # where w>0 means more guidance
 
-        x_i = torch.randn(single, *size).to(device)  # x_T ~ N(0, 1), sample initial noise
+        x_i = torch.randn(num_of_output_mages, *size).to(device)  # x_T ~ N(0, 1), sample initial noise
         c_i = torch.tensor([digit])
-        c_i = c_i.repeat(int(single/c_i.shape[0]))
+        c_i = c_i.repeat(int(num_of_output_mages/c_i.shape[0]))
 
         # don't drop context at test time
         context_mask = torch.zeros_like(c_i).to(device)
@@ -301,27 +301,27 @@ class DDPM(nn.Module):
         # double the batch
         c_i = c_i.repeat(2)
         context_mask = context_mask.repeat(2)
-        context_mask[single:] = 1. # makes second half of batch context free
+        context_mask[num_of_output_mages:] = 1. # makes second half of batch context free
 
         x_i_store = [] # keep track of generated steps in case want to plot something 
         print()
         for i in range(self.n_T, 0, -1):
             print(f'sampling timestep {i}',end='\r')
             t_is = torch.tensor([i / self.n_T]).to(device)
-            t_is = t_is.repeat(single,1,1,1)
+            t_is = t_is.repeat(num_of_output_mages,1,1,1)
 
             # double batch
             x_i = x_i.repeat(2,1,1,1)
             t_is = t_is.repeat(2,1,1,1)
 
-            z = torch.randn(single, *size).to(device) if i > 1 else 0
+            z = torch.randn(num_of_output_mages, *size).to(device) if i > 1 else 0
 
             # split predictions and compute weighting
             eps = self.nn_model(x_i, c_i, t_is, context_mask)
-            eps1 = eps[:single]
-            eps2 = eps[single:]
+            eps1 = eps[:num_of_output_mages]
+            eps2 = eps[num_of_output_mages:]
             eps = (1+guide_w)*eps1 - guide_w*eps2
-            x_i = x_i[:single]
+            x_i = x_i[:num_of_output_mages]
             x_i = (
                 self.oneover_sqrta[i] * (x_i - eps * self.mab_over_sqrtmab[i])
                 + self.sqrt_beta_t[i] * z
