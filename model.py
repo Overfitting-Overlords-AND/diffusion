@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-single = 40
+single = 1
 
 class ResidualConvBlock(nn.Module):
     def __init__(
