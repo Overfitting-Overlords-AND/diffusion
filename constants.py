@@ -1,9 +1,9 @@
 from enum import Enum
 
 LEARNING_RATE = 1e-4
-BATCH_SIZE = 128 
+BATCH_SIZE = 256
 
-NUM_OF_EPOCHS = 20
+NUM_OF_EPOCHS = 100
 NUM_WORKERS = 5
 
 WANDB_ON = True
