@@ -3,6 +3,7 @@ import torchvision
 import io
 import base64
 from number_drawer import draw_number
+from torchvision.utils import save_image
 
 app = fastapi.FastAPI()
 
@@ -15,7 +16,8 @@ async def mnist_generator(request: fastapi.Request):
   text = (await request.json())["text"]
   img = draw_number(int(text))
   buffer = io.BytesIO()
-  img.save(buffer, format="PNG")
+  save_image(img, buffer, format='PNG')
+  #img.save(buffer, format="PNG")
   img_str = base64.b64encode(buffer.getvalue()).decode()
   img_str = f"data:image/png;base64,{img_str}"
   return { "img": img_str }
