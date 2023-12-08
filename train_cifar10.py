@@ -52,12 +52,12 @@ def train_cifar10():
             optim.step()
         
         wandb.log({"loss_ema": loss_ema})
-        save_checkpoint(ddpm.state_dict(), f"{constants.SAVE_DIR}model_{ep}.pth")
-        print(f"saved model at {constants.SAVE_DIR}model_{ep}.pth")
+        save_checkpoint(ddpm.state_dict(), f"{constants.CIFAR_SAVE_DIR}model_{ep}.pth")
+        print(f"saved model at {constants.CIFAR_SAVE_DIR}model_{ep}.pth")
 
     wandb.finish()
 
 
 if __name__ == "__main__":
-    train_mnist()
+    train_cifar10()
 

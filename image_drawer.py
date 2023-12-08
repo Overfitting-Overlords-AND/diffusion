@@ -19,8 +19,8 @@ def draw_image(text):
         x_gen, _ = ddpm.single_sample(constants.CIFAR_IMAGE_CLASSES.index(text), (constants.CIFAR_IMAGE_DEPTH, constants.CIFAR_IMAGE_SIZE, constants.CIFAR_IMAGE_SIZE), device, guide_w=constants.WEIGHT)
 
     grid = make_grid(x_gen*-1 + 1, nrow=10)
-    save_image(grid, constants.SAVE_DIR + f"image_w{constants.WEIGHT}.png")
-    print('saved image at ' + constants.SAVE_DIR + f"image_w{constants.WEIGHT}.png")
+    save_image(grid, constants.CIFAR_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
+    print('saved image at ' + constants.CIFAR_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
     return grid
 
 
