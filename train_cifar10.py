@@ -56,7 +56,7 @@ def train_mnist():
             pbar.set_description(f"loss: {loss_ema:.4f}")
             optim.step()
         
-        wandb.log({"loss_ema": loss_ema, "loss": loss.item()})
+        wandb.log({"loss_ema": loss_ema})
         save_checkpoint(ddpm.state_dict(), f"{constants.SAVE_DIR}model_{ep}.pth")
         print(f"saved model at {constants.SAVE_DIR}model_{ep}.pth")
 
