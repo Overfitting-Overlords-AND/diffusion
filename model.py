@@ -10,6 +10,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import math
 
 num_of_output_mages = 1
 
@@ -179,7 +180,7 @@ def ddpm_schedules(beta1, beta2, T):
     """
     assert beta1 < beta2 < 1.0, "beta1 and beta2 must be in (0, 1)"
 
-    beta_t = (beta2 - beta1) * torch.arange(0, T + 1, dtype=torch.float32) / T + beta1
+    beta_t = torch.exp((math.log(beta2) - math.log(beta1)) * torch.arange(0, T + 1, dtype=torch.float32) / T + math.log(beta1))
     sqrt_beta_t = torch.sqrt(beta_t)
     alpha_t = 1 - beta_t
     log_alpha_t = torch.log(alpha_t)
