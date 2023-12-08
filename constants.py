@@ -30,4 +30,4 @@ CIFAR_IMAGE_CLASSES = ["airplane","automobile","bird","cat","deer","dog","frog",
 #MNIST cnostants
 MNIST_IMAGE_SIZE = 28
 MNIST_IMAGE_DEPTH = 1
-MNIST_SAVE_DIR = './data/diffusion_outputs/'
+MNIST_SAVE_DIR = './data/diffusion_outputs10/'
