@@ -12,7 +12,7 @@ def eval_cifar10():
     device = getDevice()
     ws_test = [0.0, 0.5, 2.0] # strength of generative guidance
 
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=(1e-4, 0.02), n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=0.1)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.CIFAR_NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=(1e-4, 0.02), n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
     load_latest_checkpoint(ddpm)
 
@@ -20,7 +20,7 @@ def eval_cifar10():
 
     # Load the training data
     dataset = datasets.CIFAR10(root='./data', train=True, download=True, transform=transforms.Compose([transforms.ToTensor()]))
-    dataloader = torch.utils.data.DataLoader(dataset, constants.BATCH_SIZE, shuffle=True, num_workers=constants.NUM_WORKERS)
+    dataloader = torch.utils.data.DataLoader(dataset, constants.CIFAR_BATCH_SIZE, shuffle=True, num_workers=constants.NUM_WORKERS)
     ddpm.eval()
 
     for x, c in dataloader:
@@ -43,8 +43,8 @@ def eval_cifar10():
 
                 x_all = torch.cat([x_gen, x_real])
                 grid = make_grid(x_all*-1 + 1, nrow=10)
-                save_image(grid, constants.SAVE_DIR + f"image_w{w}.png")
-                print('saved image at ' + constants.SAVE_DIR + f"image_w{w}.png")
+                save_image(grid, constants.CIFAR_SAVE_DIR + f"image_w{w}.png")
+                print('saved image at ' + constants.CIFAR_SAVE_DIR + f"image_w{w}.png")
 
                 # if ep%5==0 or ep == int(n_epoch-1):
                 #     # create gif of images evolving over time, based on x_gen_store

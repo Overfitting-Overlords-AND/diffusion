@@ -9,21 +9,14 @@ from torchvision.datasets import MNIST
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
 from utilities import getDevice 
+import constants
 
 def train_mnist():
 
     # hardcoding these here
-    n_epoch = 20
-    batch_size = 256
-    n_T = 400 # 500
     device = getDevice()
-    n_classes = 10
-    n_feat = 128 # 128 ok, 256 better (but slower)
-    lrate = 1e-4
-    save_model = False
-    save_dir = './data/diffusion_outputs10/'
-    
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=n_feat, n_classes=n_classes), betas=(1e-4, 0.02), n_T=n_T, device=device, drop_prob=0.1)
+        
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.MNIST_IMAGE_DEPTH, n_feat=constants.MNIST_NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
 
     # optionally load a model
@@ -32,15 +25,15 @@ def train_mnist():
     tf = transforms.Compose([transforms.ToTensor()]) # mnist is already normalised 0 to 1
 
     dataset = MNIST("./data", train=True, download=True, transform=tf)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=5)
-    optim = torch.optim.Adam(ddpm.parameters(), lr=lrate)
+    dataloader = DataLoader(dataset, batch_size=constants.MNIST_BATCH_SIZE, shuffle=True, num_workers=constants.NUM_WORKERS)
+    optim = torch.optim.Adam(ddpm.parameters(), lr=constants.LEARNING_RATE)
 
-    for ep in range(n_epoch):
+    for ep in range(constants.NUM_OF_EPOCHS):
         print(f'epoch {ep}')
         ddpm.train()
 
         # linear lrate decay
-        optim.param_groups[0]['lr'] = lrate*(1-ep/n_epoch)
+        optim.param_groups[0]['lr'] = constants.LEARNING_RATE*(1-ep/constants.NUM_OF_EPOCHS)
 
         pbar = tqdm(dataloader)
         loss_ema = None
@@ -58,9 +51,8 @@ def train_mnist():
             optim.step()
         
         # optionally save model
-        if save_model and ep == int(n_epoch-1):
-            torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
-            print('saved model at ' + save_dir + f"model_{ep}.pth")
+        torch.save(ddpm.state_dict(), constants.MNIST_SAVE_DIR + f"model_{ep}.pth")
+        print('saved model at ' + constants.MNIST_SAVE_DIR + f"model_{ep}.pth")
 
 if __name__ == "__main__":
     train_mnist()

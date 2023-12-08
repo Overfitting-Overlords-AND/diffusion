@@ -15,7 +15,7 @@ def train_cifar10():
     print(f"Device = {device}")
     wandb.init()
     
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.CIFAR_NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
 
     tf = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -23,7 +23,7 @@ def train_cifar10():
     # Load the training data
     dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=tf)
-    dataloader = torch.utils.data.DataLoader(dataset, constants.BATCH_SIZE,
+    dataloader = torch.utils.data.DataLoader(dataset, constants.CIFAR_BATCH_SIZE,
                                             shuffle=True, num_workers=constants.NUM_WORKERS)
 
     start_epoch = load_latest_checkpoint(ddpm)

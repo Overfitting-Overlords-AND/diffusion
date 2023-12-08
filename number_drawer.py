@@ -8,7 +8,7 @@ def draw_number(text):
     
     device = getDevice()
 
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=constants.NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=0.1)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=1, n_feat=constants.MNIST_NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
     ddpm.load_state_dict(torch.load("./pretrained_model/model_39.pth", map_location=torch.device('cpu')))
 
