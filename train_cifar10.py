@@ -12,6 +12,7 @@ def train_cifar10():
 
     # hardcoding these here
     device = getDevice()
+    print(f"Device = {device}")
     wandb.init()
     
     ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
