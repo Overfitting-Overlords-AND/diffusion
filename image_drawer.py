@@ -1,9 +1,9 @@
 import torch
 from utilities import getDevice, load_latest_checkpoint
 from model import DDPM, ContextUnet
-import torchvision
 from torchvision.utils import save_image, make_grid
 import constants
+import matplotlib.pyplot as plt
 
 def draw_image(text):
     # hardcoding these here
@@ -18,13 +18,14 @@ def draw_image(text):
     with torch.no_grad():
         x_gen, _ = ddpm.single_sample(constants.CIFAR_IMAGE_CLASSES.index(text), (constants.CIFAR_IMAGE_DEPTH, constants.CIFAR_IMAGE_SIZE, constants.CIFAR_IMAGE_SIZE), device, guide_w=constants.WEIGHT)
 
-    grid = make_grid(x_gen*-1 + 1, nrow=10)
+    # Display the image
+    grid = make_grid(x_gen, nrow=10)
     save_image(grid, constants.CIFAR_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
     print('saved image at ' + constants.CIFAR_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
     return grid
 
 
 if __name__ == "__main__":
-    draw_image(8)
+    draw_image("horse")
 
 
