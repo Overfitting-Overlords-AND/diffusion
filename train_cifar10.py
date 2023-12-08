@@ -1,19 +1,14 @@
-from typing import Dict, Tuple
 from tqdm import tqdm
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
-from torch.utils.data import DataLoader
-from torchvision import models, transforms
-from torchvision.datasets import MNIST
+from torchvision import transforms
 from torchvision.utils import save_image, make_grid
 from model import DDPM, ContextUnet
 from utilities import getDevice, save_checkpoint, load_latest_checkpoint, find_latest_epoch_file
 import wandbWrapper as wandb
 import constants
 
-def train_mnist():
+def train_cifar10():
 
     # hardcoding these here
     device = getDevice()
