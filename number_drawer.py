@@ -18,8 +18,8 @@ def draw_number(text):
         x_gen, _ = ddpm.single_sample(constants.MNIST_IMAGE_DEPTH, (1, constants.MNIST_IMAGE_SIZE, constants.MNIST_IMAGE_SIZE), device, guide_w=constants.WEIGHT)
 
     grid = make_grid(x_gen*-1 + 1, nrow=10)
-    save_image(grid, constants.MNIST_SAVE_DIR + f"image_w{w}.png")
-    print('saved image at ' + constants.MNIST_SAVE_DIR + f"image_w{w}.png")
+    save_image(grid, constants.MNIST_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
+    print('saved image at ' + constants.MNIST_SAVE_DIR + f"image_w{constants.WEIGHT}.png")
     return grid
 
 
