@@ -17,13 +17,9 @@ def train_mnist():
 
     # hardcoding these here
     device = getDevice()
-    n_classes = constants.NUM_CLASSES
-    n_feat = constants.NUM_DIMENSIONS
-    lrate = constants.LEARNING_RATE
-
     wandb.init()
     
-    ddpm = DDPM(nn_model=ContextUnet(in_channels=3, n_feat=n_feat, n_classes=n_classes, image_size=32), betas=(1e-4, 0.02), n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
+    ddpm = DDPM(nn_model=ContextUnet(in_channels=constants.CIFAR_IMAGE_DEPTH, n_feat=constants.NUM_DIMENSIONS, n_classes=constants.NUM_CLASSES, image_size=constants.CIFAR_IMAGE_SIZE), betas=constants.BETAS, n_T=constants.NUM_TIMESTEPS, device=device, drop_prob=constants.DROP_PROB)
     ddpm.to(device)
 
     tf = transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -32,18 +28,18 @@ def train_mnist():
     dataset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                             download=True, transform=tf)
     dataloader = torch.utils.data.DataLoader(dataset, constants.BATCH_SIZE,
-                                            shuffle=True, num_workers=2)
+                                            shuffle=True, num_workers=constants.NUM_WORKERS)
 
     start_epoch = load_latest_checkpoint(ddpm)
 
-    optim = torch.optim.Adam(ddpm.parameters(), lr=lrate)
+    optim = torch.optim.Adam(ddpm.parameters(), lr=constants.LEARNING_RATE)
 
     for ep in range(start_epoch,constants.NUM_OF_EPOCHS):
         print(f'epoch {ep}')
         ddpm.train()
 
         # linear lrate decay
-        optim.param_groups[0]['lr'] = lrate*(1-ep/constants.NUM_OF_EPOCHS)
+        optim.param_groups[0]['lr'] = constants.LEARNING_RATE*(1-ep/(start_epoch+constants.NUM_OF_EPOCHS))
 
         pbar = tqdm(dataloader)
         loss_ema = None
@@ -60,10 +56,8 @@ def train_mnist():
             pbar.set_description(f"loss: {loss_ema:.4f}")
             optim.step()
         
-        wandb.log({"loss_ema": loss_ema})
-        # optionally save model
+        wandb.log({"loss_ema": loss_ema, "loss": loss.item()})
         save_checkpoint(ddpm.state_dict(), f"{constants.SAVE_DIR}model_{ep}.pth")
-        #torch.save(ddpm.state_dict(), save_dir + f"model_{ep}.pth")
         print(f"saved model at {constants.SAVE_DIR}model_{ep}.pth")
 
     wandb.finish()
