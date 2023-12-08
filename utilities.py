@@ -21,7 +21,7 @@ def save_checkpoint(state, filename):
         os.makedirs(directory)
     torch.save(state, filename)
 
-def find_latest_epoch_file(path='./data/diffusion_outputs_CIFAR10'):
+def find_latest_epoch_file(path=constants.CIFAR_SAVE_DIR):
     epoch_files = None
     if os.path.exists(path):
         epoch_files = [f for f in os.listdir(path) if re.match(r'model_\d+\.pth', f)]
@@ -33,7 +33,7 @@ def find_latest_epoch_file(path='./data/diffusion_outputs_CIFAR10'):
         return 0, None
 
 # Function to load the latest epoch file if it exists
-def load_latest_checkpoint(model, path=constants.SAVE_DIR):
+def load_latest_checkpoint(model, path=constants.CIFAR_SAVE_DIR):
     latest_epoch, latest_file = find_latest_epoch_file(path)
     if latest_file:
         print(f"Resuming training from epoch {latest_epoch+1}")
