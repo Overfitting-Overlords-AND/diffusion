@@ -154,7 +154,7 @@ class ContextUnet(nn.Module):
         # mask out context if context_mask == 1
         context_mask = context_mask[:, None]
         context_mask = context_mask.repeat(1,self.n_classes)
-        context_mask = (-1*(1-context_mask)) # need to flip 0 <-> 1
+        context_mask = (1-context_mask) # need to flip 0 <-> 1
         c = c * context_mask
         
         # embed context, time step
