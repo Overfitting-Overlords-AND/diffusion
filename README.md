@@ -1,7 +1,7 @@
 This code is based on this repo with the purpose of completing the Week 7 challange on Founders and Coders MLX3.
 
 Week 7 challenge details
-========================
+=========================
 
 Diffusion Models
 This week, we shift our focus to another exciting area in deep learning: Diffusion Models. These models, particularly in the context of image processing and generation, have shown remarkable capabilities. Your main task will involve understanding and implementing diffusion models, with a specific focus on the Conditional Diffusion Model for MNIST digits.
